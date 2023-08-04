@@ -5,6 +5,10 @@ import axios from "axios";
 
 import routes from "./routes";
 import VueRouter from "vue-router";
+
+import VueCookies from "vue-cookies"
+Vue.use(VueCookies);
+
 Vue.use(VueRouter);
 const router = new VueRouter({
   routes,
@@ -24,6 +28,14 @@ import {
   AlertPlugin,
   ToastPlugin,
   LayoutPlugin,
+  ModalPlugin ,
+  ListGroupPlugin,
+  InputGroupPlugin,
+  FormCheckboxPlugin,
+  FormTextareaPlugin,
+  FormTimepickerPlugin,
+  DropdownPlugin	
+
 } from "bootstrap-vue";
 [
   FormGroupPlugin,
@@ -36,12 +48,23 @@ import {
   AlertPlugin,
   ToastPlugin,
   LayoutPlugin,
+  ModalPlugin ,
+  ListGroupPlugin,
+  InputGroupPlugin,
+  FormCheckboxPlugin,
+  FormTextareaPlugin,
+  FormTimepickerPlugin,
+  DropdownPlugin	
 ].forEach((x) => Vue.use(x));
 Vue.use(Vuelidate);
+
+
 
 axios.interceptors.request.use(
   function(config) {
     // Do something before request is sent
+    axios.defaults.withCredentials=true
+
     return config;
   },
   function(error) {
@@ -60,8 +83,9 @@ axios.interceptors.response.use(
     // Do something with response error
     return Promise.reject(error);
   }
-);
-
+  );
+  
+axios.defaults.withCredentials=true
 Vue.use(VueAxios, axios);
 
 Vue.config.productionTip = false;
@@ -78,8 +102,9 @@ const shared_data = {
     localStorage.removeItem("username");
     this.username = undefined;
   },
+  server_domain: "http://localhost:80",
+  search_params: null,
 };
-console.log(shared_data);
 // Vue.prototype.$root.store = shared_data;
 
 new Vue({

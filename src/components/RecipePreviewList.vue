@@ -1,12 +1,12 @@
 <template>
   <b-container>
-    <h3>
-      {{ title }}:
-      <slot></slot>
-    </h3>
-    <b-row>
-      <b-col v-for="r in recipes" :key="r.id">
-        <RecipePreview class="recipePreview" :recipe="r" />
+      <h3>
+        {{ title }}:
+        <slot></slot>
+      </h3>
+    <b-row  v-for="i in Math.ceil(recipes.length / 3)" :key="i">
+      <b-col v-for="recipe in recipes.slice((i-1) * 3, i *3)" :key="recipe.id">
+        <recipe-preview :recipe="recipe"></recipe-preview>
       </b-col>
     </b-row>
   </b-container>
@@ -23,39 +23,21 @@ export default {
     title: {
       type: String,
       required: true
-    }
+    },
+    recipes: {
+        type: Array,
+         required: true
+      },
   },
-  data() {
-    return {
-      recipes: []
-    };
-  },
-  mounted() {
-    this.updateRecipes();
-  },
-  methods: {
-    async updateRecipes() {
-      try {
-        const response = await this.axios.get(
-          this.$root.store.server_domain + "/recipes/random",
-          // "https://test-for-3-2.herokuapp.com/recipes/random"
-        );
+  
 
-        // console.log(response);
-        const recipes = response.data.recipes;
-        this.recipes = [];
-        this.recipes.push(...recipes);
-        // console.log(this.recipes);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  }
 };
 </script>
 
 <style lang="scss" scoped>
 .container {
-  min-height: 400px;
+  min-height: 500px;
+  max-height: 500px;
+  margin-top: 15px;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <h1 class="title">Register</h1>
-    <b-form @submit.prevent="onRegister" @reset.prevent="onReset">
+    <b-form @submit.prevent="onRegister" @reset="onReset">
       <b-form-group
         id="input-group-username"
         label-cols-sm="3"
@@ -42,12 +42,44 @@
         </b-form-invalid-feedback>
       </b-form-group>
 
+      <b-form-group 
+        id="input-group-firstName"
+        label-cols-sm="3"
+        label="First name:"
+        label-for="firstName" >
+        <b-form-input
+          id="Firstname"
+          v-model="$v.form.firstName.$model"
+          type="text"
+          :state="validateState('firstName')">
+        </b-form-input>
+        <b-form-invalid-feedback  v-if="$v.form.firstName.required && !$v.form.firstName.alpha">
+          Firstname contains only letters
+        </b-form-invalid-feedback>  
+      </b-form-group>
+
+      <b-form-group 
+        id="input-group-lastName"
+        label-cols-sm="3"
+        label="Lastname:"
+        label-for="lastName" >
+        <b-form-input
+          id="lastName"
+          v-model="$v.form.lastName.$model"
+          type="text"
+          :state="validateState('lastName')">
+        </b-form-input>
+        <b-form-invalid-feedback  v-if="$v.form.lastName.required && !$v.form.lastName.alpha">
+          Lastname contains only letters
+        </b-form-invalid-feedback>  
+      </b-form-group>
       <b-form-group
         id="input-group-Password"
         label-cols-sm="3"
         label="Password:"
         label-for="password"
       >
+
         <b-form-input
           id="password"
           type="password"
@@ -65,6 +97,11 @@
           v-if="$v.form.password.required && !$v.form.password.length"
         >
           Have length between 5-10 characters long
+        </b-form-invalid-feedback>
+        <b-form-invalid-feedback 
+          v-if="!$v.form.password.strength"
+          >
+            contain: number, letter, special characters
         </b-form-invalid-feedback>
       </b-form-group>
 
@@ -88,6 +125,28 @@
         >
           The confirmed password is not equal to the original password
         </b-form-invalid-feedback>
+      </b-form-group>
+      
+      <b-form-group 
+        id="input-group-Email"
+        label-cols-sm="3"
+        label="Email Address: "
+        label-for="emailAddress"
+        >
+        <b-form-input 
+          id="emailAddress"
+          v-model="$v.form.email.$model"
+          type="email"
+          name="email"
+          autocomplete="email"
+          :state="validateState('email')"
+          >
+          <b-form-invalid-feedback v-if="$v.form.email.emailValidation">
+              example@email.com
+          </b-form-invalid-feedback>
+
+        </b-form-input>
+
       </b-form-group>
 
       <b-button type="reset" variant="danger">Reset</b-button>
@@ -159,9 +218,28 @@ export default {
       country: {
         required
       },
+      firstName: {
+        required,
+        alpha
+      },
+      lastName: {
+        required,
+        alpha
+      },
+      email : {
+        required,
+        emailValidation: (e) => {
+          if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(e)) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      },
       password: {
         required,
-        length: (p) => minLength(5)(p) && maxLength(10)(p)
+        length: (p) => minLength(5)(p) && maxLength(10)(p),
+        strength: (p) => /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]/.test(p)
       },
       confirmedPassword: {
         required,
@@ -179,6 +257,7 @@ export default {
       const { $dirty, $error } = this.$v.form[param];
       return $dirty ? !$error : null;
     },
+
     async Register() {
       try {
         const response = await this.axios.post(
@@ -187,23 +266,26 @@ export default {
 
           {
             username: this.form.username,
-            password: this.form.password
+            password: this.form.password,
+            firstname: this.form.firstName,
+            lastname: this.form.lastName,
+            email: this.form.email,
+            profilePic: '👨‍🍳'
           }
         );
         this.$router.push("/login");
-        // console.log(response);
       } catch (err) {
         console.log(err.response);
         this.form.submitError = err.response.data.message;
       }
     },
     onRegister() {
-      // console.log("register method called");
+      console.log("register method called");
       this.$v.form.$touch();
       if (this.$v.form.$anyError) {
         return;
       }
-      // console.log("register method go");
+      console.log("register method go");
       this.Register();
     },
     onReset() {
